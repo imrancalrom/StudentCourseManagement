@@ -1,0 +1,118 @@
+version: '3.4'
+
+services:
+
+  coursedb:
+   container_name: coursedb
+   ports:
+       - "1433:1433"
+   environment:
+       SA_PASSWORD: "Yasser_123"
+       ACCEPT_EULA: "Y"
+   volumes:
+     - coursedbsqldata:/var/opt/mssql
+
+  userdb:
+   container_name: userdb
+   ports:
+       - "1434:1433"
+   environment:
+       SA_PASSWORD: "Yasser_123"
+       ACCEPT_EULA: "Y"
+   volumes:
+     - userdbsqldata:/var/opt/mssql
+
+  course.api:
+    container_name: courseapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "90:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+
+  user.api:
+    container_name: userapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+
+  studentcoursedb:
+    container_name: studentcoursedb
+    ports:
+       - "1435:1433"
+    environment:
+       SA_PASSWORD: "Yasser_123"
+       ACCEPT_EULA: "Y"
+    volumes:
+     - studentcoursedbsqldata:/var/opt/mssql
+
+  basketdb:
+   container_name: basketdb
+   restart: always        
+   ports:
+       - "6379:6379"
+
+  rabbitmq:
+      container_name: rabbitmq
+      restart: always
+      ports:
+          - "5672:5672"
+          - "15672:15672"
+
+  studentcourse.api:
+    container_name: studentcourseapi
+    restart: on-failure
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings:StudentCourseConnection=Server=studentcoursedb;Database=StudentCourses;User Id=sa;Password=Yasser_123"
+      - "EventBus:HostName=rabbitmq"
+    ports:
+      - "100:80"
+    depends_on:
+      - studentcoursedb
+      - rabbitmq
+   
+  cmapigateway:
+        container_name: cmapigateway
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+        depends_on:
+            - course.api
+            - user.api
+        volumes:
+            - ${HOME}/.microsoft/usersecrets/:/root/.microsoft/usersecrets
+            - ${HOME}/.aspnet/https:/root/.aspnet/https:oc
+        ports:
+            - "130:80"
+
+  coursebasket.api:
+        container_name: coursebasketapi
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - "ConnectionStrings:Redis=basketdb:6379"
+            - "EventBus:HostName=rabbitmq"
+        depends_on:
+            - basketdb
+            - rabbitmq
+        volumes:
+            - ${HOME}/.microsoft/usersecrets/:/root/.microsoft/usersecrets
+            - ${HOME}/.aspnet/https:/root/.aspnet/https:bs
+        ports:
+            - "120:80"
+
+  scm.web:
+    container_name: scmweb
+    depends_on:
+        - cmapigateway
+    ports:
+       - "150:80"
+
+
+volumes:
+  coursedbsqldata:
+  userdbsqldata:
+  studentcoursedbsqldata:

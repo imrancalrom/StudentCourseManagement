@@ -1,0 +1,59 @@
+version: '3.4'
+
+services:
+  course.api:
+    image: ${DOCKER_REGISTRY-}courseapi
+    build:
+      context: .
+      dockerfile: Course/src/Course.API/Dockerfile
+
+  user.api:
+    image: ${DOCKER_REGISTRY-}userapi
+    build:
+      context: .
+      dockerfile: User/src/User.API/Dockerfile
+
+  coursedb:
+    build:
+      context: .
+      dockerfile: Course/db/Dockerfile  
+
+  userdb:
+    build:
+      context: .
+      dockerfile: User/db/Dockerfile      
+   
+  rabbitmq:
+        image: rabbitmq:3-management-alpine
+
+  basketdb:
+        image: redis
+
+  coursebasket.api:
+    image: ${DOCKER_REGISTRY-}coursebasketapi
+    build:
+      context: .
+      dockerfile: CourseBasket/Src/CourseBasket.API/Dockerfile
+
+  studentcourse.api:
+    image: ${DOCKER_REGISTRY-}studentcourseapi
+    build:
+      context: .
+      dockerfile: StudentCourse/Src/StudentCourse.API/Dockerfile
+
+  studentcoursedb:
+    build:
+      context: .
+      dockerfile: StudentCourse/db/Dockerfile
+
+  cmapigateway:
+    image: ${DOCKER_REGISTRY-}cmapigateway
+    build:
+      context: .
+      dockerfile: APIGateway/CMAPIGateway/Dockerfile
+
+  scm.web:
+    image: ${DOCKER_REGISTRY-}scmweb
+    build:
+      context: .
+      dockerfile: SCM.web/scm/Dockerfile

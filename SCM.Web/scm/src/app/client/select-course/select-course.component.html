@@ -1,0 +1,72 @@
+<mat-card>
+    <mat-card-header class="header">
+      <mat-card-title class="header_title"><i class="material-icons">book</i> Manage Course</mat-card-title>
+      <button [routerLink]="['../../home']" mat-button color="primary"><i class="material-icons">home</i>    Back to Home</button>
+    </mat-card-header>
+    <mat-card-content class="card_cntnt">
+      <div>
+        <form novalidate (ngSubmit)="onSubmit(selectCourse)" [formGroup]="selectCourse">
+          <div>
+            <mat-form-field class="frm-ctrl">
+                <mat-label>Select User</mat-label>
+                <mat-select formControlName="user" name="user">
+                  <mat-option>None</mat-option>
+                  <mat-option *ngFor="let user of users" [value]="user.userID">
+                    {{user.firstName}}
+                  </mat-option>
+                </mat-select>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field class="frm-ctrl">
+                <mat-label>Select Course</mat-label>
+                <mat-select formControlName="course" name="course" multiple>
+                  <mat-option>None</mat-option>
+                  <mat-option *ngFor="let course of courses" [value]="course.courseID">
+                    {{course.courseName}}
+                  </mat-option>
+                </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="footer">
+            <button color="warn" type="button" mat-raised-button>Reset</button>&nbsp;
+            <button type="submit" color="primary" [disabled]="selectCourse.invalid" mat-raised-button>Add to Cart</button></div>
+        </form>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+<div class="example-container mat-elevation-z8">
+    <div class="example-table-container">
+      <table mat-table [dataSource]="basketVM" class="example-table" >
+        <ng-container matColumnDef="userEmail">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let row">{{row.userEmail}}</td>
+        </ng-container>
+  
+        <ng-container matColumnDef="subjects">
+          <th mat-header-cell *matHeaderCellDef>Subject(s)</th>
+          <td mat-cell *matCellDef="let row">{{row.subjects}}</td>
+        </ng-container>
+  
+        <ng-container matColumnDef="totalPrice">
+          <th mat-header-cell *matHeaderCellDef>Total Price</th>
+          <td mat-cell *matCellDef="let row">{{row.totalPrice | currency}}</td>
+        </ng-container>
+  
+        <ng-container matColumnDef="delete">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row"><button mat-mini-fab color="warn" (click)="gridaction(row)">
+              <mat-icon>delete</mat-icon>
+            </button></td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+    <mat-paginator [length]="resultsLength" [pageSize]="5"></mat-paginator>
+  </div>
+  <div class="div-spacing">
+    <button mat-raised-button color="primary" (click)="buyCourse()">Buy Courses</button>
+  </div>
